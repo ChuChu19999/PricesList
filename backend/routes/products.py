@@ -38,7 +38,7 @@ async def get_products(
     search: Optional[str] = Query(
         None, min_length=1, description="Поиск по наименованию"
     ),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db, scope="function"),
 ):
     """Список товаров для таблицы на фронтенде."""
     items, total, total_sum = await list_products(
@@ -64,7 +64,7 @@ async def get_products(
 )
 async def get_product_image(
     product_id: int,
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db, scope="function"),
 ):
     """Отдача бинарного изображения из БД."""
     image = await get_product_image_row(db, product_id)
@@ -86,7 +86,7 @@ async def post_product(
     price: Decimal = Form(..., ge=0),
     product_url: str = Form(..., alias="productUrl"),
     image: UploadFile = File(..., description="Файл изображения"),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db, scope="function"),
 ):
     """Создание товара с загрузкой изображения (multipart)."""
     image_content, content_type = await read_image_upload(image)
@@ -113,7 +113,7 @@ async def patch_product(
     price: Decimal = Form(..., ge=0),
     product_url: str = Form(..., alias="productUrl"),
     image: Optional[UploadFile] = File(None, description="Новое изображение"),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db, scope="function"),
 ):
     """Обновление записи; файл изображения необязателен."""
     image_content = None
@@ -142,7 +142,7 @@ async def patch_product(
 )
 async def remove_product(
     product_id: int,
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db, scope="function"),
 ):
     """Безвозвратное удаление товара."""
     await delete_product(db, product_id)

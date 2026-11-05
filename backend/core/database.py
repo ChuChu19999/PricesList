@@ -21,7 +21,11 @@ Base = declarative_base()
 
 
 async def get_db() -> AsyncSession:
-    """Dependency для получения сессии БД с автокоммитом/откатом."""
+    """Сессия БД с автокоммитом после handler.
+
+    Подключать как Depends(get_db, scope="function"), иначе commit
+    выполнится после ответа клиенту и следующий GET может увидеть старые данные.
+    """
     if AsyncSessionLocal is None:
         raise RuntimeError("База данных временно отключена")
     async with AsyncSessionLocal() as session:

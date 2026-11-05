@@ -164,3 +164,4 @@ async def delete_product(db: AsyncSession, product_id: int) -> None:
     """Физическое удаление продукта и связанного изображения."""
     product = await get_product_by_id(db, product_id)
     await db.delete(product)
+    await db.flush()
