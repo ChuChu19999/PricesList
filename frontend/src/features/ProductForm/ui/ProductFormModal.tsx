@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Form, Input, InputNumber, message, Modal, Upload } from 'antd';
+import { Form, Input, InputNumber, Modal, Switch, Upload } from 'antd';
 import { BiCheckCircle, BiImageAdd } from 'react-icons/bi';
 import { getProductImageSrc } from '../../../shared/api/products';
 import type { Product, ProductPayload } from '../../../shared/api/products';
@@ -13,6 +13,7 @@ interface ProductFormModalProps {
   formSession: number;
   mode: ProductFormMode;
   product?: Product | null;
+  sectionId: number;
   loading?: boolean;
   onCancel: () => void;
   onSubmit: (payload: ProductPayload) => void;
@@ -21,6 +22,7 @@ interface ProductFormModalProps {
 interface ProductFormContentProps {
   mode: ProductFormMode;
   product?: Product | null;
+  sectionId: number;
   onSubmit: (payload: ProductPayload) => void;
   onRegisterSubmit: (submit: () => Promise<void>) => void;
 }
@@ -29,6 +31,7 @@ interface ProductFormValues {
   name: string;
   price: number;
   productUrl: string;
+  includeInSum: boolean;
 }
 
 const httpsRule = {
@@ -49,6 +52,7 @@ const revokeBlobUrl = (url?: string) => {
 const ProductFormContent = ({
   mode,
   product,
+  sectionId,
   onSubmit,
   onRegisterSubmit,
 }: ProductFormContentProps) => {
@@ -128,18 +132,15 @@ const ProductFormContent = ({
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
 
-    if (mode === 'create' && !newImageFile) {
-      message.error('Загрузите изображение');
-      return;
-    }
-
     onSubmit({
       name: values.name.trim(),
       price: values.price,
       productUrl: values.productUrl.trim(),
+      sectionId,
+      includeInSum: values.includeInSum,
       imageFile: newImageFile,
     });
-  }, [form, mode, newImageFile, onSubmit]);
+  }, [form, newImageFile, onSubmit, sectionId]);
 
   useEffect(() => {
     onRegisterSubmit(handleSubmit);
@@ -161,14 +162,18 @@ const ProductFormContent = ({
           name: product.name,
           price: Number(product.price),
           productUrl: product.productUrl,
+          includeInSum: product.includeInSum,
         }
-      : undefined;
+      : {
+          includeInSum: true,
+        };
 
   const imageField = (
     <Form.Item
       label="Изображение"
-      required={mode === 'create'}
-      help={mode === 'edit' ? 'Оставьте текущее или загрузите новое' : undefined}
+      help={
+        mode === 'edit' ? 'Необязательно: оставьте текущее или загрузите новое' : 'Необязательно'
+      }
     >
       <Upload
         accept="image/jpeg,image/png,image/webp,image/gif"
@@ -230,6 +235,14 @@ const ProductFormContent = ({
       >
         <Input placeholder="https://..." />
       </Form.Item>
+      <Form.Item
+        label="Учитывать в сумме"
+        name="includeInSum"
+        valuePropName="checked"
+        extra="Если выключено, цена не войдёт в итоговую сумму раздела"
+      >
+        <Switch />
+      </Form.Item>
     </Form>
   );
 };
@@ -239,6 +252,7 @@ const ProductFormModal = ({
   formSession,
   mode,
   product,
+  sectionId,
   loading,
   onCancel,
   onSubmit,
@@ -271,6 +285,7 @@ const ProductFormModal = ({
           key={`${mode}-${formSession}`}
           mode={mode}
           product={product}
+          sectionId={sectionId}
           onSubmit={onSubmit}
           onRegisterSubmit={registerSubmit}
         />

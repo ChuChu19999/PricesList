@@ -5,7 +5,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { Popconfirm, Spin } from 'antd';
+import { Popconfirm, Spin, Switch } from 'antd';
 import { BiDownArrow, BiEdit, BiTrash, BiUpArrow } from 'react-icons/bi';
 import { getProductImageSrc } from '../../../shared/api/products';
 import type { Product } from '../../../shared/api/products';
@@ -21,9 +21,11 @@ interface ProductsTableProps {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   deleteLoadingId?: number | null;
+  includeInSumLoadingId?: number | null;
   onSortChange: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
+  onIncludeInSumChange: (product: Product, includeInSum: boolean) => void;
 }
 
 const formatPrice = (value: string) => {
@@ -49,9 +51,11 @@ export const ProductsTable = ({
   sortBy,
   sortOrder,
   deleteLoadingId,
+  includeInSumLoadingId,
   onSortChange,
   onEdit,
   onDelete,
+  onIncludeInSumChange,
 }: ProductsTableProps) => {
   const columns = useMemo(
     () => [
@@ -91,6 +95,21 @@ export const ProductsTable = ({
           </a>
         ),
       }),
+      columnHelper.accessor('includeInSum', {
+        header: 'В сумме',
+        cell: info => {
+          const product = info.row.original;
+          return (
+            <Switch
+              size="small"
+              checked={product.includeInSum}
+              loading={includeInSumLoadingId === product.id}
+              onChange={checked => onIncludeInSumChange(product, checked)}
+              title={product.includeInSum ? 'Учитывается в сумме' : 'Не учитывается в сумме'}
+            />
+          );
+        },
+      }),
       columnHelper.display({
         id: 'actions',
         header: 'Действия',
@@ -129,7 +148,7 @@ export const ProductsTable = ({
         },
       }),
     ],
-    [deleteLoadingId, onEdit, onDelete]
+    [deleteLoadingId, includeInSumLoadingId, onEdit, onDelete, onIncludeInSumChange]
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library -- useReactTable
@@ -211,7 +230,7 @@ export const ProductsTable = ({
           <span className="products-table__footer-sep" aria-hidden>
             ·
           </span>
-          <span>Сумма: {formatPrice(totalSum)}</span>
+          <span>Сумма учтённых: {formatPrice(totalSum)}</span>
         </p>
       )}
     </div>

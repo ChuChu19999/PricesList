@@ -1,0 +1,152 @@
+.sections-manage-modal-wrap.ant-modal-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sections-manage-modal-wrap .ant-modal {
+  top: 0;
+  padding-bottom: 0;
+  margin: 0 auto;
+}
+
+.sections-manage-modal .ant-modal-content {
+  background: var(--app-panel);
+  border: 1px solid var(--app-border);
+  padding: 20px;
+}
+
+.sections-manage-modal .ant-modal-header {
+  background: var(--app-panel);
+  border-bottom: 1px solid var(--app-border);
+  padding-bottom: 10px;
+}
+
+.sections-manage-modal .ant-modal-title {
+  color: var(--app-text);
+}
+
+.sections-manage-modal .ant-modal-close {
+  color: var(--app-muted);
+}
+
+.sections-manage-modal__hint {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--app-muted);
+  line-height: 1.4;
+}
+
+.sections-manage-modal__create {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.sections-manage-modal__create .ant-input {
+  background: var(--app-input-bg);
+  border-color: var(--app-border);
+  color: var(--app-text);
+}
+
+.sections-manage-modal__create .ant-btn-primary {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.sections-manage-modal__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.sections-manage-modal__empty {
+  padding: 0.75rem 0;
+  color: var(--app-muted);
+  font-size: 0.9rem;
+}
+
+.sections-manage-modal__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.sections-manage-modal__item:last-child {
+  border-bottom: none;
+}
+
+.sections-manage-modal__item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.sections-manage-modal__item-name {
+  color: var(--app-text);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sections-manage-modal__item-count {
+  font-size: 0.8rem;
+  color: var(--app-muted);
+}
+
+.sections-manage-modal__item-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.sections-manage-modal__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-input-bg);
+  color: var(--app-muted);
+  cursor: pointer;
+}
+
+.sections-manage-modal__action-btn:hover:not(:disabled) {
+  color: var(--app-accent);
+  border-color: var(--app-accent);
+}
+
+.sections-manage-modal__action-btn--danger:hover:not(:disabled) {
+  color: #f87171;
+  border-color: #f87171;
+}
+
+.sections-manage-modal__action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sections-manage-modal__edit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+  align-items: center;
+}
+
+.sections-manage-modal__edit-row .ant-input {
+  flex: 1;
+  min-width: 140px;
+  background: var(--app-input-bg);
+  border-color: var(--app-border);
+  color: var(--app-text);
+}

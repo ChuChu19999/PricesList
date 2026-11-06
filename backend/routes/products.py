@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from schemas.product import (
     ProductCreate,
+    ProductIncludeInSumUpdate,
     ProductResponse,
     ProductsListResponse,
     ProductUpdate,
@@ -14,6 +15,7 @@ from services.products import (
     delete_product,
     get_product_image_row,
     list_products,
+    set_product_include_in_sum,
     to_product_response,
     update_product,
 )
@@ -26,7 +28,10 @@ router = APIRouter()
     "/",
     response_model=ProductsListResponse,
     summary="Список товаров",
-    description="Таблица товаров с сортировкой (name, price, id), поиском и итоговой суммой цен.",
+    description=(
+        "Таблица товаров с сортировкой (name, price, id), поиском, "
+        "фильтром по разделу и итоговой суммой цен."
+    ),
 )
 async def get_products(
     sort_by: Optional[str] = Query(
@@ -38,6 +43,14 @@ async def get_products(
     search: Optional[str] = Query(
         None, min_length=1, description="Поиск по наименованию"
     ),
+    section_id: Optional[int] = Query(
+        None, alias="sectionId", description="Фильтр по id раздела"
+    ),
+    unsectioned_only: bool = Query(
+        False,
+        alias="unsectionedOnly",
+        description="Только товары без раздела",
+    ),
     db: AsyncSession = Depends(get_db, scope="function"),
 ):
     """Список товаров для таблицы на фронтенде."""
@@ -46,6 +59,8 @@ async def get_products(
         sort_by=sort_by,
         sort_order=sort_order,
         search=search,
+        section_id=section_id,
+        unsectioned_only=unsectioned_only,
     )
     return ProductsListResponse(
         items=[to_product_response(product) for product in items],
@@ -85,13 +100,27 @@ async def post_product(
     name: str = Form(..., min_length=1, max_length=20),
     price: Decimal = Form(..., ge=0),
     product_url: str = Form(..., alias="productUrl"),
-    image: UploadFile = File(..., description="Файл изображения"),
+    section_id: int = Form(..., alias="sectionId"),
+    include_in_sum: bool = Form(True, alias="includeInSum"),
+    image: Optional[UploadFile] = File(
+        None, description="Файл изображения (необязательно)"
+    ),
     db: AsyncSession = Depends(get_db, scope="function"),
 ):
-    """Создание товара с загрузкой изображения (multipart)."""
-    image_content, content_type = await read_image_upload(image)
+    """Создание товара; изображение в multipart необязательно."""
+    image_content = None
+    content_type = None
+    if image is not None and image.filename:
+        image_content, content_type = await read_image_upload(image)
+
     payload = ProductCreate.model_validate(
-        {"name": name, "price": price, "productUrl": product_url}
+        {
+            "name": name,
+            "price": price,
+            "productUrl": product_url,
+            "sectionId": section_id,
+            "includeInSum": include_in_sum,
+        }
     )
     product = await create_product(
         db,
@@ -112,6 +141,8 @@ async def patch_product(
     name: str = Form(..., min_length=1, max_length=20),
     price: Decimal = Form(..., ge=0),
     product_url: str = Form(..., alias="productUrl"),
+    section_id: int = Form(..., alias="sectionId"),
+    include_in_sum: bool = Form(..., alias="includeInSum"),
     image: Optional[UploadFile] = File(None, description="Новое изображение"),
     db: AsyncSession = Depends(get_db, scope="function"),
 ):
@@ -122,7 +153,13 @@ async def patch_product(
         image_content, content_type = await read_image_upload(image)
 
     payload = ProductUpdate.model_validate(
-        {"name": name, "price": price, "productUrl": product_url}
+        {
+            "name": name,
+            "price": price,
+            "productUrl": product_url,
+            "sectionId": section_id,
+            "includeInSum": include_in_sum,
+        }
     )
     product = await update_product(
         db,
@@ -131,6 +168,21 @@ async def patch_product(
         image_content=image_content,
         content_type=content_type,
     )
+    return to_product_response(product)
+
+
+@router.patch(
+    "/{product_id}/include-in-sum",
+    response_model=ProductResponse,
+    summary="Учёт товара в сумме",
+    description="Включить или исключить товар из итоговой суммы раздела.",
+)
+async def patch_product_include_in_sum(
+    product_id: int,
+    payload: ProductIncludeInSumUpdate,
+    db: AsyncSession = Depends(get_db, scope="function"),
+):
+    product = await set_product_include_in_sum(db, product_id, payload.include_in_sum)
     return to_product_response(product)
 
 

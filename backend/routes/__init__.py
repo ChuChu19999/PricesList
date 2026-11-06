@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Request
-from routes import products
+from routes import products, sections
 
 api_router = APIRouter(prefix="/api")
 
+api_router.include_router(sections.router, prefix="/sections", tags=("sections",))
 api_router.include_router(products.router, prefix="/products", tags=("products",))
 
 

@@ -12,6 +12,9 @@ class ProductResponse(BaseModel):
     name: str = Field(..., max_length=20)
     price: Decimal
     product_url: str = Field(..., serialization_alias="productUrl")
+    section_id: Optional[int] = Field(None, serialization_alias="sectionId")
+    section_name: Optional[str] = Field(None, serialization_alias="sectionName")
+    include_in_sum: bool = Field(..., serialization_alias="includeInSum")
     has_image: bool = Field(..., serialization_alias="hasImage")
     image_url: Optional[str] = Field(None, serialization_alias="imageUrl")
 
@@ -34,6 +37,8 @@ class ProductCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=20)
     price: Decimal = Field(..., ge=0)
     product_url: HttpUrl = Field(..., alias="productUrl")
+    section_id: int = Field(..., alias="sectionId")
+    include_in_sum: bool = Field(True, alias="includeInSum")
 
 
 class ProductUpdate(BaseModel):
@@ -44,3 +49,13 @@ class ProductUpdate(BaseModel):
     name: str = Field(..., min_length=1, max_length=20)
     price: Decimal = Field(..., ge=0)
     product_url: HttpUrl = Field(..., alias="productUrl")
+    section_id: int = Field(..., alias="sectionId")
+    include_in_sum: bool = Field(..., alias="includeInSum")
+
+
+class ProductIncludeInSumUpdate(BaseModel):
+    """Быстрое переключение учёта в сумме."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    include_in_sum: bool = Field(..., alias="includeInSum")

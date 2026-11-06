@@ -10,11 +10,7 @@
   --app-header-gradient: linear-gradient(135deg, #1a1525 0%, #15161a 50%);
   --app-radius: 12px;
   --app-radius-sm: 8px;
-  font-family:
-    'Segoe UI',
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.45;
   font-weight: 400;
   color: var(--app-text);

@@ -36,7 +36,7 @@ const appTheme = {
     colorWarning: '#fbbf24',
     colorInfo: '#c084fc',
     borderRadius: 8,
-    fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
+    fontFamily: 'Tahoma, Geneva, Verdana, sans-serif',
   },
   components: {
     Message: {

@@ -11,6 +11,7 @@ export const useCreateProductMutation = () => {
     mutationFn: (payload: ProductPayload) => productsApi.create(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['products'] });
+      void queryClient.invalidateQueries({ queryKey: ['sections'] });
       message.success('Товар добавлен');
     },
     onError: error => {
@@ -27,6 +28,7 @@ export const useUpdateProductMutation = () => {
       productsApi.update(id, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['products'] });
+      void queryClient.invalidateQueries({ queryKey: ['sections'] });
       message.success('Товар обновлён');
     },
     onError: error => {
@@ -42,10 +44,27 @@ export const useDeleteProductMutation = () => {
     mutationFn: (id: number) => productsApi.remove(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['products'] });
+      void queryClient.invalidateQueries({ queryKey: ['sections'] });
       message.success('Товар удалён');
     },
     onError: error => {
       message.error(getApiErrorMessage(error, 'Не удалось удалить товар'));
+    },
+  });
+};
+
+export const useSetProductIncludeInSumMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, includeInSum }: { id: number; includeInSum: boolean }) =>
+      productsApi.setIncludeInSum(id, includeInSum),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: ['products'] });
+      message.success(variables.includeInSum ? 'Товар учтён в сумме' : 'Товар исключён из суммы');
+    },
+    onError: error => {
+      message.error(getApiErrorMessage(error, 'Не удалось изменить учёт в сумме'));
     },
   });
 };
